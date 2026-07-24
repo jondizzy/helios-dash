@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import type { PipeStatus, Pipe } from "./assets/utils/ScdTypes";
-import Icon from "./assets/utils/NonLibShapes";
-import { formatTotal } from "./assets/pages/helpers/Calculations";
+import type { PipeStatus, Pipe } from "./utils/ScdTypes";
+import Icon from "./utils/NonLibShapes";
+import { formatTotal } from "./helpers/Calculations";
 
 const sites: Pipe[] = [
   {
