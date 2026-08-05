@@ -1,11 +1,12 @@
 import Icon from "../../utils/NonLibShapes";
+import type { PageName } from "../../utils/ScdTypes";
 
 export default function Sidebar({
   active,
   setActive,
 }: {
-  active: string;
-  setActive: (label: string) => void;
+  active: PageName;
+  setActive: (label: PageName) => void;
 }) {
   return (
     <div className="sidebar">
@@ -24,18 +25,18 @@ export default function Sidebar({
       </div>
       <nav>
         <p>MONITORING</p>
-        {[
+        {([
           ["Overview", "grid"],
           ["Pipe Network", "pipe"],
           ["Trends", "chart"],
           ["Alarms", "alarm"],
-        ].map(([label, icon]) => (
+        ] as const).map(([label, icon]) => (
           <button
             key={label}
             className={active === label ? "active" : ""}
             onClick={() => setActive(label)}
           >
-            <Icon name={icon as "grid"} />
+            <Icon name={icon} />
             {label}
             {label === "Alarms" && <em>2</em>}
           </button>

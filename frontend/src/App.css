@@ -265,6 +265,32 @@ main {
   background: var(--red);
   box-shadow: 0 0 0 2px #0a111b;
 }
+.theme-toggle {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 0 10px;
+  background: #101b28;
+  color: #8fa1b6;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.theme-toggle:hover {
+  border-color: #31516e;
+  color: #e5effb;
+}
+.theme-toggle > span {
+  color: var(--amber);
+  font-size: 15px;
+  line-height: 1;
+}
+.theme-toggle small {
+  font-size: 9px;
+  font-weight: 700;
+}
 .mobile-brand {
   display: none;
   font-weight: 800;
@@ -953,6 +979,14 @@ tbody tr:last-child td {
   .top-actions {
     gap: 8px;
   }
+  .theme-toggle {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+  }
+  .theme-toggle small {
+    display: none;
+  }
   .report-toolbar {
     align-items: flex-start;
     flex-direction: column;
@@ -971,4 +1005,179 @@ tbody tr:last-child td {
   .table-footer {
     gap: 15px;
   }
+}
+
+/* The original interface is the dark theme. Light mode only remaps surfaces
+   and contrast, keeping operational status colors consistent between modes. */
+:root[data-theme="light"] {
+  --bg: #f3f7fb;
+  --panel: #ffffff;
+  --panel-2: #f7fafd;
+  --line: #d8e2ec;
+  --muted: #687b90;
+  --text: #172638;
+  --blue: #087fc4;
+  --cyan: #078f91;
+  --green: #15966a;
+  --amber: #b87808;
+  --red: #cf3e4c;
+}
+
+:root[data-theme="light"] .app-shell {
+  background: radial-gradient(circle at 65% -30%, #dceeff 0, transparent 44%), var(--bg);
+}
+:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] .topbar {
+  background: rgba(255, 255, 255, 0.92);
+}
+:root[data-theme="light"] .brand-mark {
+  background: #e7f5ff;
+  border-color: #63b6e5;
+}
+:root[data-theme="light"] .brand small,
+:root[data-theme="light"] nav p,
+:root[data-theme="light"] .operator small,
+:root[data-theme="light"] .operator .icon,
+:root[data-theme="light"] .signout,
+:root[data-theme="light"] .clock small,
+:root[data-theme="light"] .notification,
+:root[data-theme="light"] .live span,
+:root[data-theme="light"] .summary-grid p,
+:root[data-theme="light"] .section-head p,
+:root[data-theme="light"] .card-head p,
+:root[data-theme="light"] .pipe-title small,
+:root[data-theme="light"] .card-foot,
+:root[data-theme="light"] .report-toolbar p,
+:root[data-theme="light"] .report-actions label span,
+:root[data-theme="light"] .table-footer {
+  color: #687b90;
+}
+:root[data-theme="light"] nav button,
+:root[data-theme="light"] .live,
+:root[data-theme="light"] .summary-grid span,
+:root[data-theme="light"] .search,
+:root[data-theme="light"] .filters button,
+:root[data-theme="light"] th,
+:root[data-theme="light"] td,
+:root[data-theme="light"] .mono {
+  color: #52677e;
+}
+:root[data-theme="light"] nav button:hover,
+:root[data-theme="light"] nav button.active,
+:root[data-theme="light"] .filters button.active {
+  color: #10283d;
+  background: #e4f1fb;
+}
+:root[data-theme="light"] .operator > span {
+  background: #dceffa;
+  color: #0878b7;
+}
+:root[data-theme="light"] .system-state {
+  color: #34735d;
+}
+:root[data-theme="light"] .system-state span {
+  color: #a6b4c2;
+}
+:root[data-theme="light"] .clock b,
+:root[data-theme="light"] .page-heading h1,
+:root[data-theme="light"] .summary-grid strong,
+:root[data-theme="light"] .section-head h2,
+:root[data-theme="light"] .card-head h3,
+:root[data-theme="light"] .pipe-title b,
+:root[data-theme="light"] .metrics strong,
+:root[data-theme="light"] .report-toolbar h2,
+:root[data-theme="light"] .bright {
+  color: #172638;
+}
+:root[data-theme="light"] .theme-toggle,
+:root[data-theme="light"] .search,
+:root[data-theme="light"] .filters,
+:root[data-theme="light"] .report-actions input,
+:root[data-theme="light"] .report-actions select {
+  background: #ffffff;
+  color: #334b63;
+}
+:root[data-theme="light"] .theme-toggle:hover {
+  border-color: #8eb7d2;
+  color: #0a649b;
+  background: #f0f8fd;
+}
+:root[data-theme="light"] .summary-grid article,
+:root[data-theme="light"] .site-card,
+:root[data-theme="light"] .report-panel {
+  background: linear-gradient(145deg, #ffffff, #f7fafd);
+  box-shadow: 0 10px 30px #234b7020;
+}
+:root[data-theme="light"] .summary-icon.blue,
+:root[data-theme="light"] .site-avatar,
+:root[data-theme="light"] .pipe-symbol.transmission {
+  background: #e3f3fd;
+}
+:root[data-theme="light"] .summary-icon.cyan,
+:root[data-theme="light"] .pipe-symbol.distribution {
+  background: #e0f5f2;
+}
+:root[data-theme="light"] .summary-icon.purple {
+  background: #eeeafe;
+}
+:root[data-theme="light"] .summary-icon.amber {
+  background: #fff1d6;
+}
+:root[data-theme="light"] .metrics > div {
+  background: #f3f7fa;
+  border-color: #dce5ed;
+}
+:root[data-theme="light"] .metrics span,
+:root[data-theme="light"] .metrics strong small,
+:root[data-theme="light"] th small {
+  color: #71849a;
+}
+:root[data-theme="light"] .status--normal {
+  color: #087951;
+  background: #dcf4e9;
+}
+:root[data-theme="light"] .status--warning {
+  color: #966000;
+  background: #fff0cf;
+}
+:root[data-theme="light"] .status--offline,
+:root[data-theme="light"] nav button em {
+  color: #ad2d3a;
+  background: #fde5e8;
+}
+:root[data-theme="light"] th {
+  background: #edf3f8;
+  border-right-color: #d6e1eb;
+}
+:root[data-theme="light"] .transmission-group {
+  color: #0878b7;
+  background: #e4f3fc;
+}
+:root[data-theme="light"] .distribution-group {
+  color: #087f72;
+  background: #e1f4f0;
+}
+:root[data-theme="light"] tbody tr:hover {
+  background: #f0f6fa;
+}
+:root[data-theme="light"] td,
+:root[data-theme="light"] .pipe-row {
+  border-bottom-color: #dce5ed;
+}
+:root[data-theme="light"] .flow-value {
+  color: #087dbd;
+}
+:root[data-theme="light"] .distribution-value {
+  color: #078579;
+}
+:root[data-theme="light"] .export-button {
+  border-color: #75b5d9;
+  background: #e4f3fc;
+  color: #0878b7;
+}
+:root[data-theme="light"] .export-button:hover {
+  background: #d5ebf8;
+}
+:root[data-theme="light"] .notification i {
+  box-shadow: 0 0 0 2px #ffffff;
 }
