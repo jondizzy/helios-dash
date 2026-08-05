@@ -1,13 +1,14 @@
 import NodeS7 from "nodes7";
 
 import type { ActivePlcTag, PlcConnectionConfig } from "../types/plc";
-import { LargeNumberLike } from "crypto";
 
 interface PlcClientState {
   client: NodeS7;
   config: PlcConnectionConfig;
   connected: boolean;
   connectingPromise: Promise<void> | null;
+  operationQueue: Promise<void>;
+  activeItem: string | null;
   tagAddress: Map<string, string>;
 }
 
@@ -30,8 +31,26 @@ function createPlcClientState(config: PlcConnectionConfig): PlcClientState {
     config,
     connected: false,
     connectingPromise: null,
+    operationQueue: Promise.resolve(),
+    activeItem: null,
     tagAddress,
   };
+}
+
+/**
+ * nodes7 keeps a mutable item list on the client. All tags belonging to one
+ * PLC therefore have to configure and read that client sequentially.
+ */
+function enqueuePlcOperation<T>(
+  state: PlcClientState,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const result = state.operationQueue.then(operation, operation);
+  state.operationQueue = result.then(
+    () => undefined,
+    () => undefined,
+  );
+  return result;
 }
 
 function getOrCreatePlcClient(config: PlcConnectionConfig): PlcClientState {
@@ -95,21 +114,40 @@ async function connectPlc(state: PlcClientState): Promise<void> {
   return state.connectingPromise;
 }
 
+// function readAllItems(state: PlcClientState): Promise<Record<string, unknown>> {
+//   return new Promise((resolve, reject) => {
+//     state.client.readAllItems((error, values) => {
+//       if (error) {
+//         state.connected = false;
+//         reject(
+//           new Error(
+//             `PLC read failed for` +
+//               `${state.config.plcName}` +
+//               `${state.config.ipAddress}` +
+//               `${error.message}`,
+//           ),
+//         );
+//         return;
+//       }
+//       resolve(values);
+//     });
+//   });
+// }
+
 function readAllItems(state: PlcClientState): Promise<Record<string, unknown>> {
   return new Promise((resolve, reject) => {
-    state.client.readAllItems((error, values) => {
-      if (error) {
-        state.connected = false;
-        reject(
-          new Error(
-            `PLC read failed for` +
-              `${state.config.plcName}` +
-              `${state.config.ipAddress}` +
-              `${error.message}`,
-          ),
-        );
+    state.client.readAllItems((anythingBad, values) => {
+      if (!values) {
+        reject(new Error(`PLC ${state.config.plcName} returned no values.`));
         return;
       }
+
+      if (anythingBad) {
+        console.warn(
+          `PLC ${state.config.plcName} returned one or more bad-quality tags.`,
+        );
+      }
+
       resolve(values);
     });
   });
@@ -129,33 +167,38 @@ export async function readPlcTag(tag: ActivePlcTag): Promise<{
 
   const state = getOrCreatePlcClient(config);
 
-  await connectPlc(state);
+  return enqueuePlcOperation(state, async () => {
+    await connectPlc(state);
 
-  const internalTagName = createInternalTagName(tag.tagId);
+    const internalTagName = createInternalTagName(tag.tagId);
+    state.tagAddress.set(internalTagName, tag.absoluteAddress);
 
-  state.tagAddress.set(internalTagName, tag.absoluteAddress);
-
-  state.client.removeItems(internalTagName);
-  state.client.addItems(internalTagName);
-
-  try {
-    const values = await readAllItems(state);
-    const rawValue = values[internalTagName];
-
-    if (typeof rawValue !== "number" || !Number.isFinite(rawValue)) {
-      throw new Error(
-        `Tag ${tag.tagName} returned invalid` + `${JSON.stringify(rawValue)}`,
-      );
+    if (state.activeItem !== null) {
+      state.client.removeItems(state.activeItem);
     }
+    state.client.addItems(internalTagName);
+    state.activeItem = internalTagName;
 
-    return {
-      value: rawValue,
-      fetchedAt: new Date(),
-    };
-  } catch (error) {
-    state.connected = false;
-    throw error;
-  }
+    try {
+      const values = await readAllItems(state);
+      const rawValue = values[internalTagName];
+
+      if (typeof rawValue !== "number" || !Number.isFinite(rawValue)) {
+        throw new Error(
+          `Tag ${tag.tagName} (${tag.absoluteAddress}) returned invalid value: ` +
+            `${JSON.stringify(rawValue)}`,
+        );
+      }
+
+      return {
+        value: rawValue,
+        fetchedAt: new Date(),
+      };
+    } catch (error) {
+      state.connected = false;
+      throw error;
+    }
+  });
 }
 
 export async function disconnectAllPlcs(): Promise<void> {

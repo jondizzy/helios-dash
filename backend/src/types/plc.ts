@@ -50,5 +50,4 @@ export interface SaveMeasurement {
   tagId: number;
   value_number: number;
   fetchedAt: Date;
-  createdAt: Date;
 }

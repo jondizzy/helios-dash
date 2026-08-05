@@ -124,9 +124,13 @@ async function syncPollers(): Promise<void> {
       startTagPoller(tag);
     }
   }
-  console.log(
-    `PLC poller sync complete.` + `${pollers.size} active tag pollers.`,
-  );
+
+  for (const tagId of Array.from(pollers.keys())) {
+    if (!incomingTagIds.has(tagId)) {
+      stopTagPoller(tagId);
+    }
+  }
+  console.log(`PLC poller sync complete. ${pollers.size} active tag pollers.`);
 }
 
 export async function startPlcPollingJob(): Promise<void> {

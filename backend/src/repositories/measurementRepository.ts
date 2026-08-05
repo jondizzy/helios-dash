@@ -10,7 +10,6 @@ interface SaveMeasurementRow {
   tag_id: string;
   value_number: number;
   fetched_at: Date;
-  created_at: Date;
 }
 
 interface LatestMeasurementRow {
@@ -29,7 +28,7 @@ export async function insertMeasurement(
             value_number,
             fetched_at
             ) VALUES ($1, $2, $3)
-            RETURNING id, tag_id, value_number, fetched_at, created_at
+            RETURNING id, tag_id, value_number, fetched_at
         `,
     [input.tagId, input.value_number, input.fetchedAt],
   );
@@ -39,7 +38,6 @@ export async function insertMeasurement(
     tagId: Number(row.tag_id),
     value_number: row.value_number,
     fetchedAt: new Date(row.fetched_at),
-    createdAt: new Date(row.created_at),
   };
 }
 
@@ -141,7 +139,7 @@ export async function getMeasurements(options: {
 
   values.push(options.limit);
 
-  const whereclase =
+  const whereclause =
     conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
   const limitParameter = `$${values.length}`;
@@ -151,7 +149,7 @@ export async function getMeasurements(options: {
     SELECT
         m.id,
         m.tag_id,
-        m.tag_name,
+        t.tag_name,
         
         p.id AS plc_id,
         p.name AS plc_name,
@@ -159,13 +157,13 @@ export async function getMeasurements(options: {
         m.value_number,
         m.fetched_at,
 
-        t.unit,
+        t.unit
         
         FROM measurement m
 
         INNER JOIN plc_tag t ON m.tag_id = t.id
         INNER JOIN plc p ON t.plc_id = p.id
-        ${whereclase}
+        ${whereclause}
         ORDER BY m.fetched_at DESC, m.id DESC
         LIMIT ${limitParameter}
         `,
