@@ -18,19 +18,21 @@ export default function Sidebar({
         </span>
         <div>
           <b>
-            FLOW<span>OPS</span>
+            HEL/<span>OS</span>
           </b>
-          <small>CONTROL CENTER</small>
+          <small>Hardware Entity Logging Operating System</small>
         </div>
       </div>
       <nav>
         <p>MONITORING</p>
-        {([
-          ["Overview", "grid"],
-          ["Pipe Network", "pipe"],
-          ["Trends", "chart"],
-          ["Alarms", "alarm"],
-        ] as const).map(([label, icon]) => (
+        {(
+          [
+            ["Overview", "grid"],
+            ["Pipe Network", "pipe"],
+            ["Trends", "chart"],
+            ["Alarms", "alarm"],
+          ] as const
+        ).map(([label, icon]) => (
           <button
             key={label}
             className={active === label ? "active" : ""}

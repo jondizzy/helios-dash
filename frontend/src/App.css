@@ -728,6 +728,57 @@ main {
   overflow: hidden;
   box-shadow: 0 12px 35px #0003;
 }
+.report-controls-panel {
+  position: relative;
+  z-index: 10;
+  overflow: visible;
+  margin-bottom: 18px;
+}
+.site-report-grid {
+  display: grid;
+  gap: 18px;
+}
+.site-report-heading {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.site-report-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.site-report-heading h2 {
+  margin: 0;
+  color: #dce7f3;
+  font-size: 13px;
+}
+.site-report-heading p {
+  margin: 3px 0 0;
+  color: #56697e;
+  font-size: 8px;
+}
+.site-report-heading > strong {
+  color: #607389;
+  font: 500 8px "DM Mono";
+}
+.site-report-badge {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #19435f;
+  border-radius: 6px;
+  background: #112a3d;
+  color: #52bfff;
+  font: 500 9px "DM Mono";
+}
+.site-report-table {
+  min-width: 760px;
+}
 .report-toolbar {
   min-height: 72px;
   display: flex;
@@ -795,6 +846,119 @@ main {
 }
 .export-button:hover {
   background: #153951;
+}
+.export-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.refresh-button {
+  border-color: var(--line);
+  background: #172434;
+  color: #aab9ca;
+}
+.export-menu-wrap {
+  position: relative;
+}
+.export-menu {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 20;
+  width: 310px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0f1925;
+  box-shadow: 0 18px 45px #0008;
+}
+.export-menu::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 24px;
+  width: 8px;
+  height: 8px;
+  background: #0f1925;
+  border-left: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  transform: rotate(45deg);
+}
+.export-menu h3 {
+  margin: 0;
+  color: #dce7f3;
+  font-size: 12px;
+}
+.export-menu > p {
+  margin: 4px 0 14px;
+  color: #607389;
+  font-size: 8px;
+}
+.export-date-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+.export-date-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.export-date-fields label span {
+  color: #607389;
+  font: 500 7px "DM Mono";
+  letter-spacing: 0.7px;
+}
+.export-date-fields input {
+  width: 100%;
+  height: 33px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 0 8px;
+  background: #09111b;
+  color: #aab9ca;
+  color-scheme: dark;
+  font: 400 9px "DM Mono";
+}
+.export-error {
+  margin-top: 10px;
+  color: #ef8585;
+  font-size: 8px;
+}
+.export-menu-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+.export-cancel {
+  height: 31px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 0 11px;
+  background: transparent;
+  color: #7d8ea2;
+  cursor: pointer;
+  font-size: 8px;
+}
+.report-message {
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.report-message--error {
+  padding: 10px 18px;
+  color: #ef8585;
+  background: #321b22;
+}
+.live--error,
+.live--error span {
+  color: #ef8585;
+}
+.live--error > i {
+  background: var(--red);
+  box-shadow: 0 0 9px #f06464;
 }
 .table-scroll {
   overflow: auto;
@@ -883,6 +1047,37 @@ tbody tr:last-child td {
   padding: 0 18px;
   color: #4d6075;
   font-size: 8px;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pagination span {
+  min-width: 66px;
+  text-align: center;
+  font: 500 8px "DM Mono";
+}
+.pagination button {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #111e2c;
+  color: #7f91a6;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.pagination button:hover:not(:disabled) {
+  border-color: #31516e;
+  color: #55bdf5;
+}
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
 }
 
 @media (max-width: 1050px) {
@@ -1002,6 +1197,23 @@ tbody tr:last-child td {
   .report-actions select {
     width: 100%;
   }
+  .export-menu-wrap {
+    flex: 1;
+  }
+  .export-menu-wrap > .export-button {
+    width: 100%;
+  }
+  .export-menu {
+    position: fixed;
+    top: 50%;
+    left: 15px;
+    right: 15px;
+    width: auto;
+    transform: translateY(-50%);
+  }
+  .export-menu::before {
+    display: none;
+  }
   .table-footer {
     gap: 15px;
   }
@@ -1108,6 +1320,18 @@ tbody tr:last-child td {
   background: linear-gradient(145deg, #ffffff, #f7fafd);
   box-shadow: 0 10px 30px #234b7020;
 }
+:root[data-theme="light"] .site-report-heading h2 {
+  color: #172638;
+}
+:root[data-theme="light"] .site-report-heading p,
+:root[data-theme="light"] .site-report-heading > strong {
+  color: #687b90;
+}
+:root[data-theme="light"] .site-report-badge {
+  border-color: #a8d2e9;
+  background: #e3f3fd;
+  color: #0878b7;
+}
 :root[data-theme="light"] .summary-icon.blue,
 :root[data-theme="light"] .site-avatar,
 :root[data-theme="light"] .pipe-symbol.transmission {
@@ -1178,6 +1402,42 @@ tbody tr:last-child td {
 :root[data-theme="light"] .export-button:hover {
   background: #d5ebf8;
 }
+:root[data-theme="light"] .refresh-button {
+  border-color: var(--line);
+  background: #f1f6fa;
+  color: #405a72;
+}
+:root[data-theme="light"] .export-menu {
+  background: #ffffff;
+  box-shadow: 0 18px 45px #234b7040;
+}
+:root[data-theme="light"] .export-menu::before {
+  background: #ffffff;
+}
+:root[data-theme="light"] .export-menu h3 {
+  color: #172638;
+}
+:root[data-theme="light"] .export-menu > p,
+:root[data-theme="light"] .export-date-fields label span {
+  color: #687b90;
+}
+:root[data-theme="light"] .export-date-fields input {
+  background: #f7fafd;
+  color: #334b63;
+  color-scheme: light;
+}
+:root[data-theme="light"] .report-message--error {
+  color: #a92f3b;
+  background: #fdebed;
+}
 :root[data-theme="light"] .notification i {
   box-shadow: 0 0 0 2px #ffffff;
+}
+:root[data-theme="light"] .pagination button {
+  background: #f1f6fa;
+  color: #52677e;
+}
+:root[data-theme="light"] .pagination button:hover:not(:disabled) {
+  border-color: #8eb7d2;
+  color: #0878b7;
 }
