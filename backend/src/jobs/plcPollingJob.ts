@@ -1,5 +1,5 @@
 import { getActivePlcTags } from "../repositories/tagRepository";
-import { processMeasurement } from "../services/measurementService";
+import { processMeasurement } from "../services/measurementServiceMinimal";
 import { readPlcTag } from "../services/plcService";
 
 import type { ActivePlcTag } from "../types/plc";

@@ -4,8 +4,8 @@ import type { ActivePlcTag, DeadbandType } from "../types/plc";
 interface ActivePlcTagRow {
   tag_id: string;
   tag_name: string;
-  symbolic_address: string;
-  absolute_address: string;
+  address_symbol: string;
+  address_actual: string;
   data_type: string;
   unit: string;
 
@@ -26,8 +26,8 @@ export async function getActivePlcTags(): Promise<ActivePlcTag[]> {
         SELECT
             t.id AS tag_id,
             t.tag_name,
-            t.symbolic_address,
-            t.absolute_address,
+            t.address_symbol,
+            t.address_actual,
             t.data_type,
             t.unit,
             t.poll_interval,
@@ -37,7 +37,7 @@ export async function getActivePlcTags(): Promise<ActivePlcTag[]> {
             
             p.id AS plc_id,
             p.name as plc_name,
-            p.ip_address::text as ip_address,
+            host(p.ip_address) as ip_address,
             p.rack,
             p.slot
         FROM plc_tag t
@@ -50,8 +50,8 @@ export async function getActivePlcTags(): Promise<ActivePlcTag[]> {
   return result.rows.map((row) => ({
     tagId: Number(row.tag_id),
     tagName: row.tag_name,
-    symbolicAddress: row.symbolic_address,
-    absoluteAddress: row.absolute_address,
+    symbolicAddress: row.address_symbol,
+    absoluteAddress: row.address_actual,
     dataType: row.data_type,
     unit: row.unit,
 

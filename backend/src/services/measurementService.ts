@@ -3,7 +3,10 @@ import {
   insertMeasurement,
 } from "../repositories/measurementRepository";
 
-import { evaluateDeadband } from "./deadbandService";
+import {
+  evaluateDeadband,
+  type SaveReason,
+} from "./deadbandServiceMinimal";
 
 import type {
   ActivePlcTag,
@@ -13,12 +16,7 @@ import type {
 
 export interface ProcessMeasurementResult {
   saved: boolean;
-  reason:
-    | "first-read"
-    | "max-interval"
-    | "deadband-exceeded"
-    | "unchanged"
-    | "within-deadband";
+  reason: SaveReason;
   measurement?: SaveMeasurement;
 }
 

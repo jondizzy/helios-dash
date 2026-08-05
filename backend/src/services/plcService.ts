@@ -72,7 +72,7 @@ async function connectPlc(state: PlcClientState): Promise<void> {
           state.connected = false;
           reject(
             new Error(
-              `Could not connect to` +
+              `Could not connect to ` +
                 `${state.config.plcName}` +
                 `${state.config.ipAddress}` +
                 `${error.message}`,

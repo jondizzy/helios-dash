@@ -9,7 +9,7 @@ import {
 
 import { startPlcPollingJob, stopPlcPollingJob } from "./jobs/plcPollingJob";
 import { measurementRouter } from "./routes/measurementRoutes";
-import { initializeMeasurementService } from "./services/measurementService";
+import { initializeMeasurementService } from "./services/measurementServiceMinimal";
 import { disconnectAllPlcs } from "./services/plcService";
 
 const app = express();
@@ -32,13 +32,21 @@ app.get("/api/health", (_request, response) => {
 app.use("/api/measurements", measurementRouter);
 
 async function startServer(): Promise<void> {
+  console.log("1. Starting backend...");
+
+  console.log("2. Testing database connection...");
   await testDatabaseConnection();
+
+  console.log("3. Initializing measurement service...");
   await initializeMeasurementService();
+
+  console.log("4. Starting Express server...");
 
   const server = app.listen(port, () => {
     console.log(`Backend running at http://localhost:${port}`);
   });
 
+  console.log("5. Starting PLC polling...");
   await startPlcPollingJob();
   let shuttingDown = false;
   async function shutdown(signal: string): Promise<void> {
@@ -63,18 +71,18 @@ async function startServer(): Promise<void> {
         process.exit(1);
       }
     });
-
-    process.on("SIGINT", () => {
-      void shutdown("SIGINT");
-    });
-
-    process.on("SIGTERM", () => {
-      void shutdown("SIGTERM");
-    });
   }
 
-  startServer().catch((error) => {
-    console.error("Backend startup failed.", error);
-    process.exit(1);
+  process.on("SIGINT", () => {
+    void shutdown("SIGINT");
+  });
+
+  process.on("SIGTERM", () => {
+    void shutdown("SIGTERM");
   });
 }
+
+startServer().catch((error) => {
+  console.error("Backend startup failed.", error);
+  process.exit(1);
+});
