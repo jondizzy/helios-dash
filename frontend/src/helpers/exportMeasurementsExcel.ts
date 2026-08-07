@@ -7,6 +7,36 @@ type MetricKey =
   | "transmissionTotal";
 type ReportRow = Partial<Record<MetricKey, Measurement>> & { fetchedAt: Date };
 
+const jakartaDateTime = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Jakarta",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+});
+
+function toJakartaExcelDate(date: Date): Date {
+  const parts = Object.fromEntries(
+    jakartaDateTime
+      .formatToParts(date)
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, Number(part.value)]),
+  );
+  return new Date(
+    Date.UTC(
+      parts.year,
+      parts.month - 1,
+      parts.day,
+      parts.hour,
+      parts.minute,
+      parts.second,
+    ),
+  );
+}
+
 function classifyTag(tagName: string): MetricKey | null {
   const name = tagName.toLowerCase();
   const distribution =
@@ -113,11 +143,15 @@ export async function exportMeasurementsExcel(
     worksheet.getCell("H2").value = "Totalizer (m³)";
 
     for (const row of reportRows(siteMeasurements)) {
+      const excelDate = toJakartaExcelDate(row.fetchedAt);
       worksheet.addRow([
-        row.fetchedAt.toLocaleDateString("id-ID", { weekday: "long" }),
-        row.fetchedAt,
-        row.fetchedAt,
-        row.fetchedAt,
+        row.fetchedAt.toLocaleDateString("id-ID", {
+          weekday: "long",
+          timeZone: "Asia/Jakarta",
+        }),
+        excelDate,
+        excelDate,
+        excelDate,
         row.distributionFlow?.value_number ?? null,
         row.distributionTotal?.value_number ?? null,
         row.transmissionFlow?.value_number ?? null,
