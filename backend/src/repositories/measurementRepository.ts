@@ -41,6 +41,45 @@ export async function insertMeasurement(
   };
 }
 
+export async function insertHourlyMeasurements(
+  inputs: SaveMeasurementInput[],
+): Promise<SaveMeasurement[]> {
+  if (inputs.length === 0) {
+    return [];
+  }
+
+  const tagIds = inputs.map((input) => input.tagId);
+  const values = inputs.map((input) => input.value_number);
+  const fetchedAtValues = inputs.map((input) => input.fetchedAt);
+
+  const result = await pool.query<SaveMeasurementRow>(
+    `
+      INSERT INTO measurement (tag_id, value_number, fetched_at)
+      SELECT incoming.tag_id, incoming.value_number, incoming.fetched_at
+      FROM UNNEST(
+        $1::bigint[],
+        $2::double precision[],
+        $3::timestamptz[]
+      ) AS incoming(tag_id, value_number, fetched_at)
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM measurement existing
+        WHERE existing.tag_id = incoming.tag_id
+          AND existing.fetched_at = incoming.fetched_at
+      )
+      RETURNING id, tag_id, value_number, fetched_at
+    `,
+    [tagIds, values, fetchedAtValues],
+  );
+
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    tagId: Number(row.tag_id),
+    value_number: row.value_number,
+    fetchedAt: new Date(row.fetched_at),
+  }));
+}
+
 export async function getLatestMeasurementStates(): Promise<
   Map<number, MeasurementState>
 > {
@@ -168,6 +207,43 @@ export async function getMeasurements(options: {
         LIMIT ${limitParameter}
         `,
     values,
+  );
+
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    tagId: Number(row.tag_id),
+    tagName: row.tag_name,
+    plcId: Number(row.plc_id),
+    plcName: row.plc_name,
+    value_number: row.value_number,
+    unit: row.unit,
+    fetchedAt: new Date(row.fetched_at),
+  }));
+}
+
+export async function getMeasurementsForRange(
+  dateFrom: string,
+  dateTo: string,
+): Promise<MeasurementListItem[]> {
+  const result = await pool.query<MeasurementListRow>(
+    `
+      SELECT
+        m.id,
+        m.tag_id,
+        t.tag_name,
+        p.id AS plc_id,
+        p.name AS plc_name,
+        m.value_number,
+        t.unit,
+        m.fetched_at
+      FROM measurement m
+      INNER JOIN plc_tag t ON m.tag_id = t.id
+      INNER JOIN plc p ON t.plc_id = p.id
+      WHERE m.fetched_at >= $1::date
+        AND m.fetched_at < ($2::date + INTERVAL '1 day')
+      ORDER BY p.id ASC, m.fetched_at ASC, m.id ASC
+    `,
+    [dateFrom, dateTo],
   );
 
   return result.rows.map((row) => ({

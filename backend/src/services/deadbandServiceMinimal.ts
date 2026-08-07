@@ -5,7 +5,8 @@ export type SaveReason =
   | "maximum-interval"
   | "deadband-exceeded"
   | "unchanged"
-  | "within-deadband";
+  | "within-deadband"
+  | "cached for hourly fetch";
 
 export interface DeadbandDecision {
   shouldSave: boolean;

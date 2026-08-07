@@ -8,6 +8,10 @@ import {
 } from "./config/database";
 
 import { startPlcPollingJob, stopPlcPollingJob } from "./jobs/plcPollingJob";
+import {
+  startHourlyMeasurementJob,
+  stopHourlyMeasurementJob,
+} from "./jobs/hourlyMeasurementJob";
 import { measurementRouter } from "./routes/measurementRoutes";
 import { initializeMeasurementService } from "./services/measurementServiceMinimal";
 import { disconnectAllPlcs } from "./services/plcService";
@@ -48,6 +52,9 @@ async function startServer(): Promise<void> {
 
   console.log("5. Starting PLC polling...");
   await startPlcPollingJob();
+
+  console.log("6. Starting hourly measurement snapshots...");
+  startHourlyMeasurementJob();
   let shuttingDown = false;
   async function shutdown(signal: string): Promise<void> {
     if (shuttingDown) {
@@ -58,6 +65,7 @@ async function startServer(): Promise<void> {
     console.log(`Received ${signal}. Shutting down..`);
 
     stopPlcPollingJob();
+    stopHourlyMeasurementJob();
 
     server.close(async () => {
       try {

@@ -7,9 +7,26 @@
  */
 
 import { Router } from "express";
-import { getMeasurements } from "../repositories/measurementRepository";
+import {
+  getMeasurementsForRange,
+  getMeasurements,
+} from "../repositories/measurementRepository";
 
 export const measurementRouter = Router();
+
+function parseDate(value: unknown, fieldName: string): string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new Error(`${fieldName} must use YYYY-MM-DD format`);
+  }
+  const date = new Date(`${value}T00:00:00Z`);
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== value
+  ) {
+    throw new Error(`${fieldName} is not a valid date`);
+  }
+  return value;
+}
 
 function parseOptionalPositiveInteger(
   value: unknown,
@@ -30,6 +47,25 @@ function parseOptionalPositiveInteger(
 
   return parsed;
 }
+
+measurementRouter.get("/report", async (request, response) => {
+  try {
+    const dateFrom = parseDate(request.query.from, "from");
+    const dateTo = parseDate(request.query.to, "to");
+    if (dateFrom > dateTo) {
+      response
+        .status(400)
+        .json({ message: "from must be before or equal to to" });
+      return;
+    }
+    const measurements = await getMeasurementsForRange(dateFrom, dateTo);
+    response.json({ count: measurements.length, data: measurements });
+  } catch (error) {
+    response.status(400).json({
+      message: error instanceof Error ? error.message : "Unexpected error",
+    });
+  }
+});
 
 measurementRouter.get("/", async (request, response) => {
   try {
